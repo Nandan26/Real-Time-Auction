@@ -4,10 +4,6 @@ var connectionString = 'ws://' + window.location.host + '/ws/live/' + auctionCod
 
 var auctionsocket = new WebSocket(connectionString);
 
-var curr_bid= document.getElementById("current_bid_header").getAttribute("curr_bid");
-
-// console.log(curr_bid);
-// Since below code returns html collection we need to access the first element here
 const bidbutton = document.getElementsByClassName('btn btn-primary');
 
 bidbutton[1].addEventListener("click", updatebid);
@@ -15,7 +11,8 @@ bidbutton[1].addEventListener("click", updatebid);
 
 function updatebid(){
     const my_bid = document.getElementById('id_amount').value
-
+    
+    var curr_bid= document.getElementById("current_bid_header").getAttribute("curr_bid");
     
     if( isNaN(Number(curr_bid)) ){
         var starting_bid = document.getElementById("starting_bid").getAttribute("starting_bid");
@@ -37,22 +34,24 @@ function updatebid(){
             window.location.reload();
         }
     }
-    else if( my_bid <= Number(curr_bid)){
+    else {
+        var curr_bid = Number(document.getElementById('current_bid').innerHTML);
 
-        document.getElementById("warning").innerHTML += "<div class='alert alert-warning' role='alert'>Your bid must be greater than <strong>&euro;"+ curr_bid + "</strong>.</div>"
-    }
-    else{
-        element = document.getElementById("warning")
-        if(element){
-            element.innerHTML = ""
+        if( my_bid <= Number(curr_bid)){
+            document.getElementById("warning").innerHTML += "<div class='alert alert-warning' role='alert'>Your bid must be greater than <strong>&euro;"+ curr_bid + "</strong>.</div>"
         }
-        let data = {
-            "user": document.getElementById("auction_header").getAttribute("user"),
-            "curr_bid": my_bid
+        else{
+            element = document.getElementById("warning")
+            if(element){
+                element.innerHTML = ""
+            }
+            let data = {
+                "user": document.getElementById("auction_header").getAttribute("user"),
+                "curr_bid": my_bid
+            }
+            auctionsocket.send(JSON.stringify(data))
         }
-        auctionsocket.send(JSON.stringify(data))
     }
-    
 }
 
 auctionsocket.onmessage = function(e){
